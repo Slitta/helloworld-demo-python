@@ -1,5 +1,5 @@
 name: docker CI pipeline
-run-name: ${{github.actor }} is running out Docker CI Pipeline
+run-name: ${{ github.actor }} is running out Docker CI Pipeline
 on: [push]
 jobs:  
   docker-build-push:
@@ -7,9 +7,9 @@ jobs:
     steps:
         - name: clone the code
           uses: actions/checkout@v6
-         
+          
         - name: Docker build
-          uses: docker build -t  ${{ vars.DOCKERHUB_USERNAME }} /helloworld-python:v1 .     
+          run: docker build -t ${{ vars.DOCKERHUB_USERNAME }}/helloworld-python:v1 .     
       
         - name: Login to Docker Hub
           uses: docker/login-action@v4
@@ -18,11 +18,10 @@ jobs:
               password: ${{ secrets.DOCKERHUB_TOKEN }}
             
         - name: Docker push
-          run: docker push ${{ vars.DOCKERHUB_USERNAME }} /helloworld-python:v1
+          run: docker push ${{ vars.DOCKERHUB_USERNAME }}/helloworld-python:v1
 
         - name: Run Docker container
           run: docker run -d -p 8080:8080 ${{ vars.DOCKERHUB_USERNAME }}/helloworld-python:v1
 
         - name: View Docker container
-          run: docker ps           
-              
+          run: docker ps
