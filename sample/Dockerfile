@@ -1,5 +1,8 @@
-FROM python:3.8-alpine
-RUN mkdir /app
-ADD . /app
+FROM  python:3.15.0b1-alpine3.23
+MAINTAINER Slitta Joseph
+LABEL  version=1.0
+RUN command mkdir/app
+COPY . /app
 WORKDIR /app
-CMD ["python3", "app.py"]
+EXPOSE 8080
+CMD [ "python3","app.py" ]
