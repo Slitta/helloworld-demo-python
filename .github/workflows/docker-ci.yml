@@ -9,7 +9,7 @@ jobs:
           uses: actions/checkout@v6
           
         - name: Docker build
-          run: docker build -t ${{ vars.DOCKERHUB_USERNAME }}/helloworld-python:v1 .     
+          run: docker build -t ${{ vars.DOCKERHUB_USERNAME }}/helloworld-demo-python:v1 .     
       
         - name: Login to Docker Hub
           uses: docker/login-action@v4
@@ -21,7 +21,7 @@ jobs:
           run: docker push ${{ vars.DOCKERHUB_USERNAME }}/helloworld-python:v1
 
         - name: Run Docker container
-          run: docker run -d -p 8080:8080 ${{ vars.DOCKERHUB_USERNAME }}/helloworld-python:v1
+          run: docker run -d -p 8080:8080 ${{ vars.DOCKERHUB_USERNAME }}/helloworld-demo-python:v1
 
         - name: View Docker container
           run: docker ps
