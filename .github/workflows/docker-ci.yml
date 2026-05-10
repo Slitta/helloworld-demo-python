@@ -12,7 +12,7 @@ jobs:
           uses: hadolint/hadolint-action@v3.1.0
           with:
             dockerfile: Dockerfile
-            ignore: DL3002
+            ignore: DL4000
           
         - name: Docker build
           run: docker build -t ${{ vars.DOCKERHUB_USERNAME }}/helloworld-python:v1 . 
