@@ -15,7 +15,7 @@ jobs:
             ignore: DL4000
           
         - name: Docker build
-          run: docker build -t ${{ vars.DOCKERHUB_USERNAME }}/helloworld-python:v1
+          run: docker build -t ${{ vars.DOCKERHUB_USERNAME }}/helloworld-python:v1 .
 
         - name: Run Trivy vulnerability scanner
           uses: aquasecurity/trivy-action@v0.36.0
