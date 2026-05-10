@@ -1,5 +1,5 @@
 FROM python:3.15.0b1-alpine3.23
-# hadolint ignore=DL3002
+# hadolint ignore=DL4000
 MAINTAINER Slitta Joseph
 LABEL version="1.0"
 RUN mkdir -p /app
