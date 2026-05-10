@@ -1,5 +1,5 @@
 name: docker CI pipeline
-run-name: ${{ github.actor }} is running out Docker CI Pipeline
+run-name: ${{ github.actor }} is running our Docker CI Pipeline
 on: [push]
 jobs:  
   docker-build-push:
@@ -9,10 +9,10 @@ jobs:
           uses: actions/checkout@v6
           
         - name: Lint Dockerfile
-          uses: hadolint/hadolint-action@v3.1.0
+          uses: hadolint/hadolint-action@v4
           with:
             dockerfile: Dockerfile
-            ignore: DL4000
+            ignore: DL3002
           
         - name: Docker build
           run: docker build -t ${{ vars.DOCKERHUB_USERNAME }}/helloworld-python:v1 .
