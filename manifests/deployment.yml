@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+
+  name: hello-world-python  
+
+spec:
+  selector:
+
+    matchLabels:
+
+      app: hello-world-python
+	   replicas: 2
+
+  template:
+
+    metadata:
+
+      labels:
+
+        app: hello-world-python
+
+    spec:
+
+      containers:
+
+        - name: hello-world-python
+
+          image: slitt/helloworldworld-python:v1
+          ports:
+
+             - containerPort: 8080
+			    -protocol: TCP
