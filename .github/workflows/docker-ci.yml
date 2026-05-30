@@ -9,11 +9,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Lint Dockerfile
-        uses: hadolint/hadolint-action@v2
-        with:
-          dockerfile: Dockerfile
-          ignore: DL3002
+      - name: Lint Dockerfile with Hadolint
+         uses: hadolint/hadolint-action@v3.1.0
+         with:
+           dockerfile: Dockerfile
+           ignore: DL4000
 
       - name: Docker build
         run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/helloworld-python:v2 .
