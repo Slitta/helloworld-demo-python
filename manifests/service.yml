@@ -1,0 +1,17 @@
+# now by using service we canaccess our application from outside of the cluster. #
+#here using the deplyed application which is hello-world-python and we are exposing it using nodeport service. we are exposing our application on port 8080 and we are using nodeport 30007 to access our application from outside of the cluster.
+
+#we can use nodeport or loadbalancer to access our application from outside of the cluster. here we are using nodeport to access our application from outside of the cluster. we can access our application using <node-ip>:<node-port>.
+
+apiVersion: v1
+kind: Service
+metadata:
+	name: my-service
+spec:
+	type: NodePort
+  selector: 
+		app: hello-world-python
+	ports:
+	- Port: 8080
+    targetPort: 8080
+    nodePort: 30007
