@@ -5,6 +5,8 @@ on:
 jobs:
   docker-build-push:
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/helloworld-python:v2
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -15,13 +17,18 @@ jobs:
           dockerfile: Dockerfile
           ignore: DL4000
 
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v8.1.0 # Ex: v4.1.0 or sha1, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
       - name: Docker build
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/helloworld-python:v2 .
+        run: docker build -t ${{ env.IMAGE_NAME }} .
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/helloworld-python:v2
+          image-ref: ${{ env.IMAGE_NAME }}
           format: table
           exit-code: '1'
           ignore-unfixed: true
@@ -35,10 +42,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Docker push
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/helloworld-python:v2
+        run: docker push ${{ env.IMAGE_NAME }}
 
       - name: Run Docker container
-        run: docker run --rm -d -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/helloworld-python:v2
+        run: docker run --rm -d -p 8080:8080 ${{ env.IMAGE_NAME }}
 
       - name: View Docker containers
         run: docker ps
