@@ -1,83 +1,87 @@
-name: docker CI pipeline
-run-name: ${{ github.actor }} is running our Docker CI Pipeline
-on:
-  push:
+name: Docker CI Pipeline
+run-name: ${{ github.actor }} is running out Docker CI Pipeline 🚀
+on: [push]
 jobs:
   docker-build-push:
     runs-on: ubuntu-latest
-    env:
-      IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/helloworld-python:v2
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+       - name: Clone the repo
+         uses: actions/checkout@v6
+         with:
+           fetch-depth: 0
 
-      - name: Lint Dockerfile with Hadolint
-        uses: hadolint/hadolint-action@v3.1.0
-        with:
-          dockerfile: Dockerfile
-          ignore: DL4000
+       - name: Secret Scanning
+         uses: gitleaks/gitleaks-action@v2
+         env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   
+         
+       - name: Lint Dockerfile with Hadolint
+         uses: hadolint/hadolint-action@v3.1.0
+         with:
+           dockerfile: Dockerfile
+           ignore: DL4000
+           
+       - name: SonarQube Scan
+         uses: SonarSource/sonarqube-scan-action@v8.1.0
+         env:
+           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+           
+       - name: Docker Build
+         run: docker build -t ${{ vars.DOCKERHUB_USERNAME }}/helloworld-python:v1 .
 
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v8.1.0 # Ex: v4.1.0 or sha1, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      - name: Docker build
-        run: docker build -t ${{ env.IMAGE_NAME }} .
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          image-ref: ${{ env.IMAGE_NAME }}
-          format: table
+       - name: Run Trivy vulnerability scanner
+         uses: aquasecurity/trivy-action@v0.36.0
+         with:
+          image-ref: '${{ vars.DOCKERHUB_USERNAME }}/helloworld-python:v1'
+          format: 'table'
           exit-code: '1'
           ignore-unfixed: true
-          vuln-type: os,library
-          severity: CRITICAL,HIGH
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v4
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+       - name: Login to Docker Hub
+         uses: docker/login-action@v4
+         with:
+           username: ${{ vars.DOCKERHUB_USERNAME }}
+           password: ${{ secrets.DOCKERHUB_TOKEN }} 
 
-      - name: Docker push
-        run: docker push ${{ env.IMAGE_NAME }}
+       - name: Docker Push
+         run: docker push ${{ vars.DOCKERHUB_USERNAME }}/helloworld-python:v1 
 
-      - name: Run Docker container
-        run: docker run --rm -d -p 8080:8080 ${{ env.IMAGE_NAME }}
+       - name: Run the Container
+         run: docker run --name helloworld-python -itd -p 8080:8080 ${{ vars.DOCKERHUB_USERNAME }}/helloworld-python:v1 
 
-      - name: View Docker containers
-        run: docker ps
-
+       - name: View the Container
+         run: docker ps  
+         
   k8s-implementation:
     needs: docker-build-push
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+       - name: Clone the code
+         uses: actions/checkout@v6
+         
+       - name: start minikube
+         uses: medyagh/setup-minikube@latest
 
-      - name: Start Minikube
-        uses: medyagh/setup-minikube@latest
+       - name: Try the cluster!
+         run: kubectl get pods -A 
 
-      - name: Try the cluster
-        run: kubectl get pods -A
-
-      - name: Create Deployment and Service
-        run: |
-          kubectl apply -f manifests/Deployment.yaml
-          kubectl apply -f manifests/Service.yaml
-          kubectl wait --for=condition=ready pod -l app=helloworld-python --timeout=120s
-
-      - name: View deployment and service
-        run: |
-          kubectl get deployments
-          kubectl get service
-
-      - name: Test service URLs
-        run: |
-          minikube service list
-          minikube service my-service --url
-          echo "---------opening-------"
-          curl $(minikube service my-service --url)
-          
+       - name: Create Deployment and Service
+         run: |
+            kubectl apply -f manifests/deployment.yaml
+            kubectl apply -f manifests/service.yaml
+            kubectl wait --for=condition=ready pod -l app=hello-world-python         
+ 
+       - name: View Deployment and Service
+         run: |
+            kubectl get deployments
+            kubectl get service
+            
+       - name: Test service URLs
+         run: |
+           minikube service list
+           minikube service my-service --url
+           echo "------------------opening the service------------------"
+           curl $(minikube service my-service --url)
