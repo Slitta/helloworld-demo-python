@@ -25,10 +25,13 @@ jobs:
          uses: SonarSource/sonarqube-scan-action@v8.1.0
          env:
            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}  # Add if using SonarCloud
-           with:
-              args: >
-                -Dsonar.projectBaseDir=.
+           
+       - name: Run Snyk to check for vulnerabilities
+          uses: snyk/actions/node@master
+          env:
+            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          with:
+            command: monitor                  
            
        - name: Docker Build
          run: docker build -t ${{ vars.DOCKERHUB_USERNAME }}/helloworld-python:v1 .
