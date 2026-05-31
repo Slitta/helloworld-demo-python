@@ -25,6 +25,7 @@ jobs:
          uses: SonarSource/sonarqube-scan-action@v8.1.0
          env:
            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+           SONAR_HOST_URL: https://sonarcloud.io
            
        - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/python@master
